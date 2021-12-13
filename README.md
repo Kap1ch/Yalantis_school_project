@@ -1,7 +1,7 @@
 
 # Yalantis_school_project
 
-###Description of the project:
+### Description of the project:
 
 REST API for a fleet of vehicles with drivers.
 Created with the django framework, django_rest_framework.
@@ -9,23 +9,23 @@ Created with the django framework, django_rest_framework.
 **The project has two models**
 
 + Driver:
->  id: int
- first_name: str
- last_name: str
- created_at
- updated_at
+> id: int
+> first_name: str
+> last_name: str
+> created_at
+> updated_at
  
 + Vehicle
 > id: int
- driver_id: FK to Driver
- make: str
- model: str
- plate_number: str  - format example "AA 1234 OO"  
- created_at
- updated_at
+> driver_id: FK to Driver
+> make: str
+> model: str
+> plate_number: str  - format example "AA 1234 OO"  
+> created_at
+> updated_at
  
-####List of requests
->**the request body must be passed in json format**
+#### List of requests
+> **the request body must be passed in json format**
 
 
 **Driver:**
