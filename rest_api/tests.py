@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -23,6 +23,9 @@ class DriverApiTestCase(APITestCase):
             last_name='last_name_three',
         )
 
+        self.date = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+
+
     def test_driver_list_get(self):
         url = '/drivers/driver/'
         response = self.client.get(url, format='json')
@@ -38,14 +41,34 @@ class DriverApiTestCase(APITestCase):
         self.assertEqual(response.data, serializer_data)
 
     def test_driver_get_list_gte(self):
-        url = '/drivers/driver/?created_at__gte=10-11-2021'
+        date = datetime.now()
+        url = '/drivers/driver/?created_at__gte={}'.format(date.strftime('%d-%m-%Y'))
+        response = self.client.get(url, format='json')
+        serializer_data = DriverSerializer([self.first_driver, self.second_driver, self.third_driver], many=True).data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, serializer_data)
+
+    def test_driver_get_list_gte_same_data(self):
+        date_yesterday = datetime.now() - timedelta(days=1)
+        url = '/drivers/driver/?created_at__gte={}'.format(date_yesterday.strftime('%d-%m-%Y'))
         response = self.client.get(url, format='json')
         serializer_data = DriverSerializer([self.first_driver, self.second_driver, self.third_driver], many=True).data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, serializer_data)
 
     def test_driver_get_list_lte(self):
-        url = '/drivers/driver/?created_at__lte=16-11-2021'
+        date_tomorrow = datetime.now() + timedelta(days=1)
+        url = '/drivers/driver/?created_at__lte={}'.format(date_tomorrow.strftime('%d-%m-%Y'))
+        response = self.client.get(url, format='json')
+        serializer_data = DriverSerializer([self.first_driver,
+                                            self.second_driver,
+                                            self.third_driver], many=True).data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, serializer_data)
+
+    def test_driver_get_list_lte_same_data(self):
+        date = datetime.now()
+        url = '/drivers/driver/?created_at__lte={}'.format(date.strftime('%d-%m-%Y'))
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
@@ -57,14 +80,13 @@ class DriverApiTestCase(APITestCase):
             'last_name': 'test_last_name'
         }
         response = self.client.post(url, data, format='json')
-        date = datetime.now().date().strftime('%d-%m-%Y')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data, {
             'id': 4,
             'first_name': 'test_first_name',
             'last_name': 'test_last_name',
-            'created_at': date,
-            'update_at': date
+            'created_at': self.date,
+            'update_at': self.date
         })
 
     def test_driver_put(self):
@@ -74,14 +96,13 @@ class DriverApiTestCase(APITestCase):
             'last_name': 'test_last_name_put'
         }
         response = self.client.put(url, data, format='json')
-        date = datetime.now().date().strftime('%d-%m-%Y')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {
             'id': 1,
             'first_name': 'test_first_name_put',
             'last_name': 'test_last_name_put',
-            'created_at': date,
-            'update_at': date
+            'created_at': self.date,
+            'update_at': self.date
         })
 
     def test_driver_delete(self):
@@ -122,6 +143,8 @@ class DriverApiFailedTestCase(APITestCase):
 
 class VehicleApiTestCase(APITestCase):
     def setUp(self) -> None:
+        self.date = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+
         self.driver = Driver.objects.create(
             first_name='first_name',
             last_name='last_name',
@@ -184,7 +207,6 @@ class VehicleApiTestCase(APITestCase):
             'plate_number': 'DD 1234 DD'
         }
         response = self.client.post(url, data, format='json')
-        date = datetime.now().date().strftime('%d-%m-%Y')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data, {
             'id': 4,
@@ -192,8 +214,8 @@ class VehicleApiTestCase(APITestCase):
             'make': 'new_make',
             'model': 'new_model',
             'plate_number': 'DD 1234 DD',
-            'created_at': date,
-            'update_at': date
+            'created_at': self.date,
+            'update_at': self.date
         })
 
     def test_vehicle_post_update_one(self):
@@ -202,7 +224,6 @@ class VehicleApiTestCase(APITestCase):
             'id': self.driver.id
         }
         response = self.client.post(url, data, format='json')
-        date = datetime.now().date().strftime('%d-%m-%Y')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data, {
             'id': 1,
@@ -210,8 +231,8 @@ class VehicleApiTestCase(APITestCase):
             'make': 'make_one',
             'model': 'model_one',
             'plate_number': 'AA 1234 AA',
-            'created_at': date,
-            'update_at': date
+            'created_at': self.date,
+            'update_at': self.date
         })
 
     def test_vehicle_post_update_two(self):
@@ -220,7 +241,6 @@ class VehicleApiTestCase(APITestCase):
             'id': self.driver.id
         }
         response = self.client.post(url, data, format='json')
-        date = datetime.now().date().strftime('%d-%m-%Y')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data, {
             'id': 2,
@@ -228,8 +248,8 @@ class VehicleApiTestCase(APITestCase):
             'make': 'make_two',
             'model': 'model_two',
             'plate_number': 'BB 1234 BB',
-            'created_at': date,
-            'update_at': date
+            'created_at': self.date,
+            'update_at': self.date
         })
 
     def test_vehicle_put(self):
@@ -241,7 +261,6 @@ class VehicleApiTestCase(APITestCase):
             'plate_number': 'AD 4321 AD'
         }
         response = self.client.put(url, data, format='json')
-        date = datetime.now().date().strftime('%d-%m-%Y')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {
             'id': 1,
@@ -249,8 +268,8 @@ class VehicleApiTestCase(APITestCase):
             'make': 'make_one_update',
             'model': 'model_one_update',
             'plate_number': 'AD 4321 AD',
-            'created_at': date,
-            'update_at': date
+            'created_at': self.date,
+            'update_at': self.date
         })
 
     def test_vehicle_delete(self):

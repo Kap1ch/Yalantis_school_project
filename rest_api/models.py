@@ -6,11 +6,11 @@ from django.core.validators import RegexValidator
 class Driver(models.Model):
     first_name = models.CharField(max_length=50, verbose_name='first name')
     last_name = models.CharField(max_length=50, verbose_name='first name')
-    created_at = models.DateField(verbose_name='Date create', auto_now_add=True)
-    update_at = models.DateField(verbose_name='Date update', auto_now=True)
+    created_at = models.DateTimeField(verbose_name='Date create', auto_now_add=True)
+    update_at = models.DateTimeField(verbose_name='Date update', auto_now=True)
 
     def __str__(self):
-        return self.first_name
+        return f"{self.first_name} {self.last_name}"
 
 
 class Vehicle(models.Model):
@@ -19,6 +19,8 @@ class Vehicle(models.Model):
     model = models.CharField(max_length=50, verbose_name='model')
     plate_number = models.CharField(max_length=50, verbose_name='plate_number', unique=True,
                                     validators=[RegexValidator(regex=r"^[A-Z]{2} \d{4} [A-Z]{2}$")])
-    created_at = models.DateField(verbose_name='Date create', auto_now_add=True)
-    update_at = models.DateField(verbose_name='Date update', auto_now=True)
+    created_at = models.DateTimeField(verbose_name='Date create', auto_now_add=True)
+    update_at = models.DateTimeField(verbose_name='Date update', auto_now=True)
 
+    def __str__(self):
+        return f"{self.make} {self.model} {self.plate_number}"
