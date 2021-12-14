@@ -26,10 +26,6 @@
 
 `pip install -r requirements.txt `
 
-+ Create migration:
-
-`python manage.py makemigrations `
-
 + Apply migration:
 
 `python manage.py migrate`
